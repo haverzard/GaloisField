@@ -4,7 +4,7 @@
 # by haverzard (https://github.com/haverzard)
 
 from util import get_sign, is_prime, compute_poly, check_irr
-from exceptions import FFOperationException
+from exceptions import FFOperationException, PrimeFieldNoFitException
 from fast_polynom import FastPolynom
 
 
@@ -52,7 +52,7 @@ class GF:
                     assert x == 1 or is_prime(x), "not prime"
 
                 assert check_irr(irr[0], irr[1]), "polynom is reducible"
-            self.irr = irr
+        self.irr = irr
 
     def __eq__(self, x):
         return self.p == x.p and self.m == x.m and self.irr[0] == x.irr[0]
@@ -111,7 +111,10 @@ class FFElement:
                 self.container.broadcast_modulo(ff.p)
 
                 if self.container.get_max_degree() > ff.m:
-                    self._fit()
+                    if ff.m != 1:
+                        self._fit()
+                    else:
+                        raise PrimeFieldNoFitException()
             else:
                 self.container = FastPolynom()
 

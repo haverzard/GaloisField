@@ -4,6 +4,13 @@ class FFOperationException(Exception):
         self.message = msg
 
 
+class PrimeFieldNoFitException(Exception):
+    def __init__(self):
+        self.message = (
+            "There is no fitting in prime field. Use the correct polynom's degree 1"
+        )
+
+
 class FPNegativeDegreeNotAllowed(Exception):
     def __init__(self):
         self.message = "Negative degree polynom is not allowed"
