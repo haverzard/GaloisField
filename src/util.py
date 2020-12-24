@@ -26,7 +26,7 @@ def is_prime(n):
 
 def compute_poly(x, poly):
     total = 0
-    for i in range(len(poly) - 1, -1, -1):
+    for i in poly.get_keys(rev=True):
         total = total * x + poly[i]
     return total
 
@@ -43,12 +43,24 @@ def check_irr(poly, primes):
 def egcd(a, b):
     if a % b == 0:
         return 0
-    mem = [0, 1]
+    mem = [0, 1, 0, None]
     while b != 1:
         t = mem[1]
         mem[1] = mem[0] - t * (a // b)
         mem[0] = t
+
+        if mem[3] is None:
+            mem[3] = 1
+        else:
+            t = mem[3]
+            mem[3] = mem[2] - t * (a // b)
+            mem[2] = t
+
         t = b
         b = a % b
         a = t
-    return mem[1]
+    return (mem[3], mem[1])
+
+
+if __name__ == "__main__":
+    print(egcd(11, 3))
