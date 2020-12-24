@@ -460,9 +460,17 @@ class FFElement:
 
 
 if __name__ == "__main__":
-    ff = GF(2, 3, ([1, 1, 0, 1], [1]))
-    print(FFElement(ff, [1, 1, 1]) * FFElement(ff, [0, 0, 1]))
-    print(FFElement(ff, [1, 1, 1]).inverse())
-    print(FFElement(ff, FastPolynom({0: 1, 1: 1, 2: 1})).inverse())
-    ff = GF(2, 1)
-    print(FFElement(ff, FastPolynom({0: 1})).inverse())
+    ff = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
+    print(FFElement(ff, FastPolynom({0: 1, 1: 1})))
+    print(
+        FFElement(ff, FastPolynom({0: 1, 1: 1, 2: 1}))
+        * FFElement(ff, FastPolynom({0: 0, 1: 1}))
+    )
+    print(
+        FFElement(ff, FastPolynom({0: 1, 1: 0, 2: 1}))
+        / FFElement(ff, FastPolynom({0: 0, 1: 1}))
+    )
+    print(FFElement(ff, FastPolynom({1: 1})).inverse())
+    # ff = GF(101, 1)
+    # print(FFElement(ff, FastPolynom({0: 44})) / FFElement(ff, FastPolynom({0: 30})))
+    # print(FFElement(ff, FastPolynom({0: 44})).inverse())
