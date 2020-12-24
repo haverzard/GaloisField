@@ -177,27 +177,33 @@ class FFElement:
     def __mod__(self, x):
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
-            d = self.container.get_max_degree()
-            pre = {}
-            a = 2
-            _, x1 = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
-            pre[1] = FFElement(self.ff, x1)
-            _, x2 = self._div(FastPolynom({2: 1}), x.container, self.ff.p)
-            pre[2] = FFElement(self.ff, x2)
-            while a * 2 <= d:
-                _, x2 = self._div((pre[a] * pre[a]).container, x.container, self.ff.p)
-                a *= 2
-                pre[a] = FFElement(self.ff, x2)
-            res = FFElement.gen_zero(self.ff)
-            for i in self.container.get_keys(rev=True):
-                temp = FFElement.gen_one(self.ff)
-                j = 1
-                while i:
-                    if i & 1:
-                        temp *= pre[j]
-                    i >>= 1
-                    j *= 2
-                res += temp
+            if self.ff.m == 1:
+                res = FFElement(self.ff)
+                res.container[0] = self.container[0] % x.container[0]
+            else:
+                d = self.container.get_max_degree()
+                pre = {}
+                a = 2
+                _, x1 = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
+                pre[1] = FFElement(self.ff, x1)
+                _, x2 = self._div(FastPolynom({2: 1}), x.container, self.ff.p)
+                pre[2] = FFElement(self.ff, x2)
+                while a * 2 <= d:
+                    _, x2 = self._div(
+                        (pre[a] * pre[a]).container, x.container, self.ff.p
+                    )
+                    a *= 2
+                    pre[a] = FFElement(self.ff, x2)
+                res = FFElement(self.ff)
+                for i in self.container.get_keys(rev=True):
+                    temp = FFElement.gen_one(self.ff)
+                    j = 1
+                    while i:
+                        if i & 1:
+                            temp *= pre[j]
+                        i >>= 1
+                        j *= 2
+                    res += temp
             return res
         except AttributeError:
             raise FFOperationException("%", "x is not FFElement object?")
