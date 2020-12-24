@@ -3,7 +3,7 @@
 # GF - Galois Field in Python3
 # by haverzard (https://github.com/haverzard)
 
-from util import get_sign, is_prime, compute_poly, check_irr
+from util import get_sign, is_prime, compute_poly, check_irr, egcd
 from exceptions import FFOperationException, PrimeFieldNoFitException
 from fast_polynom import FastPolynom
 
@@ -169,8 +169,12 @@ class FFElement:
     def __floordiv__(self, x):
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
-            div, _ = self._div(self.container, x.container, self.ff.p)
-            return FFElement(self.ff, div)
+            if self.ff.m == 1:
+                res = FastPolynom()
+                res[0] = self.container[0] // x.container[0]
+            else:
+                res, _ = self._div(self.container, x.container, self.ff.p)
+            return FFElement(self.ff, res)
         except AttributeError:
             raise FFOperationException("//", "x is not FFElement object?")
 
@@ -178,7 +182,7 @@ class FFElement:
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
             if self.ff.m == 1:
-                res = FFElement(self.ff)
+                res = FastPolynom(self.ff)
                 res.container[0] = self.container[0] % x.container[0]
             else:
                 d = self.container.get_max_degree()
@@ -217,10 +221,6 @@ class FFElement:
         return a.container.get_max_degree() == -1
 
     @staticmethod
-    def gen_zero(ff):
-        return FFElement(ff, FastPolynom())
-
-    @staticmethod
     def gen_one(ff):
         return FFElement(ff, FastPolynom({0: 1}))
 
@@ -240,11 +240,15 @@ class FFElement:
 
     def inverse(self):
         try:
-            x = FFElement(self.ff, self.container)
-            x.container = self.ff.irr[0]
+            if self.ff.m == 1:
+                res = FFElement(self.ff)
+                res.container[0] = egcd(self.ff.p, self.container[0])[1]
+            else:
+                irr = FFElement(self.ff, self.container)
+                irr.container = self.ff.irr[0]
 
-            inv = FFElement._egcd(x, self)
-            return inv
+                res = FFElement._egcd(irr, self)
+            return res
         except AttributeError:
             raise FFOperationException("^-1", "Something went wrong?")
 

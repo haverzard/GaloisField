@@ -42,7 +42,7 @@ def check_irr(poly, primes):
 
 def egcd(a, b):
     if a % b == 0:
-        return 0
+        return (None, None)
     mem = [0, 1, 0, None]
     while b != 1:
         t = mem[1]
