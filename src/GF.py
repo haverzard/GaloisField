@@ -21,7 +21,7 @@ class GF:
     prime_check - enable/disable prime check for optimization purpose (default: True)
 
     Supports:
-    - Prime Field (m = 0)
+    - Prime Field (m = 1)
     - Extension Field (m != 1)
     """
 
