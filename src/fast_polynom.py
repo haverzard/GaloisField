@@ -46,7 +46,7 @@ class FastPolynom:
         element = self.container[idx]
         if element:
             return "{}{}x^{} ".format(
-                get_sign(element, empty), element if element != 1 else "", idx
+                get_sign(element, empty), abs(element) if element != 1 else "", idx
             )
         return ""
 
@@ -68,7 +68,7 @@ class FastPolynom:
             if keys[0] == 0:
                 e = self.container[0]
                 if e or not s:
-                    s += "{}{}".format(get_sign(e, not s), e)
+                    s += "{}{}".format(get_sign(e, not s), abs(e))
             else:
                 s += self._element_str(keys[0], not s)
             return s
