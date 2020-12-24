@@ -150,7 +150,14 @@ class FFElement:
             raise FFOperationException("+", "x is not FFElement object?")
 
     def __sub__(self, x):
-        return self.__add__(x)
+        try:
+            assert self.ff == x.ff, "x is not in the same finite field"
+            res = FFElement(self.ff)
+            for i in range(self.ff.m):
+                res.container[i] = (self.container[i] - x.container[i]) % self.ff.p
+            return res
+        except AttributeError:
+            raise FFOperationException("-", "x is not FFElement object?")
 
     def __mul__(self, x):
         try:
