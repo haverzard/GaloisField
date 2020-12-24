@@ -1,10 +1,39 @@
+#!/usr/bin/python3
+#
+# GF - Galois Field in Python3
+# by haverzard (https://github.com/haverzard)
+
 from util import get_sign, is_prime, compute_poly, check_irr
 from exceptions import FFOperationException
 from fast_polynom import FastPolynom
 
 
 class GF:
+    """
+    Galois Field class implementation - GF(p^m)
+
+    Attributes:
+    p - prime number
+    m - positive integer (default: 1)
+    irr - tuple consists of [0] irreducible polynom & [1] prime (used for extension field)
+          set irr[0] with FastPolynom object
+          set irr[1] as None to ignore reducibility check
+    prime_check - enable/disable prime check for optimization purpose (default: True)
+
+    Supports:
+    - Prime Field (m = 0)
+    - Extension Field (m != 1)
+    """
+
     def __init__(self, p, m=1, irr=(None, None), prime_check=True):
+        """
+        Init finite field
+        1. Check if p is prime
+        2. Check if m is positive integer
+        3. Check if type of field
+        4. Check polynom's degree if field is extension
+           and irreducibility of the polynom if primes are set
+        """
         if prime_check:
             assert is_prime(p), "p must be prime"
         assert m > 0, "m must be positive"
@@ -29,6 +58,11 @@ class GF:
         return self.p == x.p and self.m == x.m and self.irr[0] == x.irr[0]
 
     def __str__(self):
+        """
+        Transform finite field in universal format:
+        `GF(p^m)[X] / F(x)`
+        with F(x) is the irreducible polynom
+        """
         p = self.p
         m = self.m
         elements = ""
@@ -47,13 +81,29 @@ class GF:
             if e or not elements:
                 elements += "{}{}".format(get_sign(e, not elements), e)
 
-        return "GF({}{}){}".format(p, "^" + str(m) if m else "", " | " + elements)
+        return "GF({}{}){}".format(p, "^" + str(m) if m else "", "[X] / " + elements)
 
 
 class FFElement:
-    def __init__(self, ff, container=None, fit=False, optimize=True):
+    """
+    Galois Field Element/Member class implementation
+    Data structure are all in polynomials (using FastPolynom object)
+
+    Attributes:
+    ff - GF object
+    container - FastPolynom object
+
+    Supports:
+    - Addition
+    - Subtraction
+    - Multiplication
+    - Inverse
+    - Division
+    - Modulo
+    """
+
+    def __init__(self, ff, container=None):
         self.ff = ff
-        self.optimize = optimize
         if ff.m:
             if container:
                 self.container = container
@@ -210,3 +260,5 @@ if __name__ == "__main__":
     print(FFElement(ff, [1, 1, 1]) * FFElement(ff, [0, 0, 1]))
     print(FFElement(ff, [1, 1, 1]).inverse())
     print(FFElement(ff, FastPolynom({0: 1, 1: 1, 2: 1})).inverse())
+    ff = GF(2, 1)
+    print(FFElement(ff, FastPolynom({0: 1})).inverse())
