@@ -65,23 +65,11 @@ class GF:
         """
         p = self.p
         m = self.m
-        elements = ""
-        if self.irr:
-            poly = self.irr[0]
-            e = poly[-1]
-            if e:
-                elements = "{}{}x^{} ".format(get_sign(e, True), e if e != 1 else "", m)
-            for i in range(m - 1, 0, -1):
-                e = poly[i]
-                if e:
-                    elements += "{}{}x^{} ".format(
-                        get_sign(e, not elements), e if e != 1 else "", i
-                    )
-            e = poly[0]
-            if e or not elements:
-                elements += "{}{}".format(get_sign(e, not elements), e)
-
-        return "GF({}{}){}".format(p, "^" + str(m) if m else "", "[X] / " + elements)
+        return "GF({}{}){}".format(
+            p,
+            "^" + str(m) if m else "",
+            "[X] / " + str(self.irr[0]) if self.irr[0] else "",
+        )
 
 
 class FFElement:
