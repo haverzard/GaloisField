@@ -6,7 +6,7 @@ Galois Field (GF) is a field contains a finite number of elements. There are 2 t
 
 In prime field, elements are integer within [0, p-1] range. Prime field have a prime `p` that limits our value so it will always be within the field.
 
-In extension field, elements can be polynomials with maximum degree of (m-1). Extension field have a prime `p` and `coprime` polynomial (irreducible) that limits our polynomial and its values so it will always be within the field.
+In extension field, elements can be polynomials with maximum degree of (m-1). Extension field have a prime `p` and prime polynomial (irreducible) that limits our polynomial and its values so it will always be within the field.
 
 ## Requirements
 - Python 3
