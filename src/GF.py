@@ -266,6 +266,29 @@ class FFElement:
         except AttributeError:
             raise FFOperationException("*", "x is not FFElement object?")
 
+    def __truediv__(self, x):
+        """
+        Division between 2 FFElement by using inverse of x
+        and multiplication
+
+        Arguments:
+            x - FFElement object
+
+        Usage:
+            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1})
+            / FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+        """
+        try:
+            assert self.ff == x.ff, "x is not in the same finite field"
+            if self.ff.m == 1:
+                res = FFElement(self.ff)
+                res.container[0] = self.container[0] // x.container[0]
+            else:
+                res = self * x.inverse()
+            return res
+        except AttributeError:
+            raise FFOperationException("/", "x is not FFElement object?")
+
     def __floordiv__(self, x):
         """
         Polynomial division (not finite field division)
