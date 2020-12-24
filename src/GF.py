@@ -399,7 +399,7 @@ class FFElement:
         """
         if FFElement._is_zero(a % b):
             raise Exception("a & b must be co-prime")
-        mem = [FFElement.gen_zero(a.ff), FFElement.gen_one(a.ff)]
+        mem = [FFElement(a.ff), FFElement.gen_one(a.ff)]
         while not FFElement._is_one(b):
             t = mem[1]
             mem[1] = mem[0] - t * (a // b)
