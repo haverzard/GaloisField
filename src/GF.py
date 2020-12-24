@@ -160,8 +160,9 @@ class FFElement:
                 for j in range(deg):
                     res[i + j] += (self.container[i] * x.container[j]) % p
                     res[i + j] %= p
-            _, x = self._div(res, self.ff.irr[0], p)
-            return FFElement(self.ff, x)
+            if ff.m != 1:
+                _, res = self._div(res, self.ff.irr[0], p)
+            return FFElement(self.ff, res)
         except AttributeError:
             raise FFOperationException("*", "x is not FFElement object?")
 
