@@ -31,7 +31,9 @@ class FastPolynom:
     def get_max_degree(self):
         # Check for cache
         if self.cache:
-            return self.cached_keys[-1]
+            if self.cached_keys:
+                return self.cached_keys[-1]
+            return 0
 
         # Get max degree
         keys = list(self.container.keys())
