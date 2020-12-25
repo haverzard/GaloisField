@@ -1,4 +1,7 @@
 # Galois Field
+
+![galois-field](https://github.com/haverzard/GaloisField/workflows/Galois%20Field/badge.svg)
+
 ## Description
 Galois Field (GF) is a field contains a finite number of elements. There are 2 types of Galois Field:
 1. Prime Field (m = 1)
