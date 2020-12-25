@@ -37,7 +37,7 @@ class FastPolynom:
         keys = list(self.container.keys())
         if keys:
             return max(keys)
-        return -1
+        return 0
 
     def get_keys(self, rev=False):
         # Check for cache

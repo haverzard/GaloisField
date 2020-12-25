@@ -380,7 +380,13 @@ class FFElement:
         """
         Check if FFElement is zero
         """
-        return self.container.get_max_degree() == -1
+        return self.container.get_max_degree() == 0 and not self.container.container
+
+    def is_integer(self):
+        """
+        Check if FFElement is integer
+        """
+        return self.container.get_max_degree() == 0 and self.container[0] != 0
 
     @staticmethod
     def gen_one(ff):
