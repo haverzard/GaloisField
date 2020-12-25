@@ -91,6 +91,9 @@ class GF:
         """
         return self.p == x.p and self.m == x.m and self.irr[0] == x.irr[0]
 
+    def __ne__(self, x):
+        return not (self == x)
+
     def __str__(self):
         """
         Transform finite field in universal format:
@@ -166,6 +169,12 @@ class FFElement:
                         raise PrimeFieldNoFitException()
             else:
                 self.container = FastPolynom()
+
+    def __eq__(self, x):
+        return self.ff == x.ff and self.container == x.container
+
+    def __ne__(self, x):
+        return not (self == x)
 
     def _div(self, pol1, pol2, p, copy=True):
         """

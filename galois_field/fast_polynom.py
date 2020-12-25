@@ -91,6 +91,17 @@ class FastPolynom:
             )
         return ""
 
+    def __eq__(self, x):
+        if self.get_keys() != x.get_keys():
+            return False
+        for i in self.get_keys():
+            if self[i] != x[i]:
+                return False
+        return True
+
+    def __ne__(self, x):
+        return not (self == x)
+
     def __str__(self):
         s = ""
         keys = self.get_keys()
