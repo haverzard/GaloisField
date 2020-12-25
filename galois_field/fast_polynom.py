@@ -126,19 +126,3 @@ class FastPolynom:
             return s
         else:
             return "0"
-
-
-if __name__ == "__main__":
-    p = FastPolynom()
-    p[1] = 1
-    p[300] = 20
-    p[34] = 4
-    p[12] = 8
-    p[55] = 5
-    print(p[-1])
-    print(p)
-    print(type(p) == FastPolynom)
-
-# -> max_degree(n), O(1), O(1)
-# -> n, O(1), O(n)
-# -> n, O(log(n)), O(1)
