@@ -204,8 +204,10 @@ class FFElement:
         key = pol2[d2]
         while d1 >= d2:
             x = num[d1]
-            assert x % key == 0, "bad reduce"
-            fac = x // key
+            if x % key == 0:
+                fac = x // key
+            else:
+                fac = x * egcd(self.ff.p, key)[1] % self.ff.p
             divs[d1 - d2] = fac
             if fac:
                 for j in keys_pol2:
