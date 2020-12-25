@@ -196,7 +196,7 @@ class FFElement:
             return pol1, [0]
 
         keys_pol2 = pol2.get_keys(rev=True)
-        num = pol1.deepcopy()
+        num = pol1.deepcopy() if copy else pol1
         divs = FastPolynom()
         key = pol2[d2]
         while d1 >= d2:
@@ -273,7 +273,7 @@ class FFElement:
                 for j in range(deg):
                     res[i + j] += (self.container[i] * x.container[j]) % p
                     res[i + j] %= p
-            if ff.m != 1:
+            if self.ff.m != 1:
                 _, res = self._div(res, self.ff.irr[0], p)
             return FFElement(self.ff, res)
         except AttributeError:
@@ -361,6 +361,9 @@ class FFElement:
                     while i:
                         if i & 1:
                             temp *= pre[j]
+                            _, a = self._div(
+                                temp.container, x.container, self.ff.p, copy=False
+                            )
                         i >>= 1
                         j *= 2
                     res += temp
