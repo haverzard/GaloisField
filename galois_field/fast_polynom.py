@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from exceptions import FPNegativeDegreeNotAllowed
-from util import get_sign
+from .exceptions import FPNegativeDegreeNotAllowed
+from .util import get_sign
 
 
 class FastPolynom:

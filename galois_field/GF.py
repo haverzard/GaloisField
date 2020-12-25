@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from util import get_sign, is_prime, check_irr, egcd
-from exceptions import FFOperationException, PrimeFieldNoFitException
-from fast_polynom import FastPolynom
+from .util import get_sign, is_prime, check_irr, egcd
+from .exceptions import FFOperationException, PrimeFieldNoFitException
+from .fast_polynom import FastPolynom
 
 
 class GF:

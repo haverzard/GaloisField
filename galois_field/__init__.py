@@ -5,6 +5,6 @@ GF - Galois Field in Python3
 by haverzard (https://github.com/haverzard)
 """
 
-from GF import GF, FFElement
-from fast_polynom import FastPolynom
-from util import egcd, is_prime
+import galois_field.GF
+import galois_field.fast_polynom
+import galois_field.util
