@@ -293,12 +293,9 @@ class FFElement:
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
-            if self.ff.m == 1:
-                res = FFElement(self.ff)
-                res.container[0] = self.container[0] // x.container[0]
-            else:
-                res = self * x.inverse()
-            return res
+            return self * x.inverse()
+        except FFOperationException:
+            raise FFOperationException("/", "Division by 0 is unallowed")
         except AttributeError:
             raise FFOperationException("/", "x is not FFElement object?")
 
@@ -315,6 +312,8 @@ class FFElement:
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
+            if self.is_zero():
+                raise FFOperationException("//", "Division by 0 is unallowed")
             if self.ff.m == 1:
                 res = FastPolynom()
                 res[0] = self.container[0] // x.container[0]
@@ -371,25 +370,17 @@ class FFElement:
         except AttributeError:
             raise FFOperationException("%", "x is not FFElement object?")
 
-    @staticmethod
-    def is_one(a):
+    def is_one(self):
         """
         Check if FFElement is one
-
-        Arguments:
-            a - FFElement object
         """
-        return a.container.get_max_degree() == 0
+        return self.container.get_max_degree() == 0 and self.container[0] == 1
 
-    @staticmethod
-    def is_zero(a):
+    def is_zero(self):
         """
         Check if FFElement is zero
-
-        Arguments:
-            a - FFElement object
         """
-        return a.container.get_max_degree() == -1
+        return self.container.get_max_degree() == -1
 
     @staticmethod
     def gen_one(ff):
@@ -413,10 +404,10 @@ class FFElement:
             a - FFElement object (greater)
             b - FFElement object (lower)
         """
-        if FFElement.is_zero(a % b):
+        if (a % b).is_zero():
             raise Exception("a & b must be co-prime")
         mem = [FFElement(a.ff), FFElement.gen_one(a.ff)]
-        while not FFElement.is_one(b):
+        while not b.is_one():
             t = mem[1]
             mem[1] = mem[0] - t * (a // b)
             mem[0] = t
@@ -435,6 +426,10 @@ class FFElement:
             FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1}).inverse()
         """
         try:
+            if self.is_zero():
+                raise FFOperationException("^-1", "0 doesn't have any inverse")
+            if self.is_one():
+                return FFElement(self.ff)
             if self.ff.m == 1:
                 res = FFElement(self.ff)
                 res.container[0] = egcd(self.ff.p, self.container[0])[1]
