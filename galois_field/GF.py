@@ -1,9 +1,6 @@
 #!/usr/bin/python3
-#
-# GF - Galois Field in Python3
-# by haverzard (https://github.com/haverzard)
 
-from util import get_sign, is_prime, compute_poly, check_irr, egcd
+from util import get_sign, is_prime, check_irr, egcd
 from exceptions import FFOperationException, PrimeFieldNoFitException
 from fast_polynom import FastPolynom
 
@@ -60,18 +57,25 @@ class GF:
         self.p = p
         self.m = m
 
+        # Extension field case
         if m != 1:
             assert (
                 irr[0].get_max_degree() == m
             ), "irreducible polynom is not for the finite field"
 
+            # Make irreducible polynom's elements are within [0...p-1]
             irr[0].broadcast_modulo(p)
+
+            # Check for primes
             if irr[1]:
                 assert len(irr[1]), "make sure it's array"
+
+                # Make sure primes are really primes
                 for x in irr[1]:
                     assert x == 1 or is_prime(x), "not prime"
 
-                assert check_irr(irr[0], irr[1]), "polynom is reducible"
+                # Check irreduciblity
+                assert check_irr(irr[0], irr[1], p), "polynom is reducible"
         self.irr = irr
 
     def __eq__(self, x):
@@ -356,7 +360,7 @@ class FFElement:
             raise FFOperationException("%", "x is not FFElement object?")
 
     @staticmethod
-    def _is_one(a):
+    def is_one(a):
         """
         Check if FFElement is one
 
@@ -366,7 +370,7 @@ class FFElement:
         return a.container.get_max_degree() == 0
 
     @staticmethod
-    def _is_zero(a):
+    def is_zero(a):
         """
         Check if FFElement is zero
 
@@ -389,7 +393,7 @@ class FFElement:
         return FFElement(ff, FastPolynom({0: 1}))
 
     @staticmethod
-    def _egcd(a, b):
+    def egcd(a, b):
         """
         Extended euclidean for polynom
 
@@ -397,10 +401,10 @@ class FFElement:
             a - FFElement object (greater)
             b - FFElement object (lower)
         """
-        if FFElement._is_zero(a % b):
+        if FFElement.is_zero(a % b):
             raise Exception("a & b must be co-prime")
         mem = [FFElement(a.ff), FFElement.gen_one(a.ff)]
-        while not FFElement._is_one(b):
+        while not FFElement.is_one(b):
             t = mem[1]
             mem[1] = mem[0] - t * (a // b)
             mem[0] = t
@@ -426,7 +430,7 @@ class FFElement:
                 irr = FFElement(self.ff, self.container)
                 irr.container = self.ff.irr[0]
 
-                res = FFElement._egcd(irr, self)
+                res = FFElement.egcd(irr, self)
             return res
         except AttributeError:
             raise FFOperationException("^-1", "Something went wrong?")

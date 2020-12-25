@@ -1,7 +1,12 @@
+#!/usr/bin/python3
+
 import functools
 
 
 def get_sign(x, ignore=False):
+    """
+    Get +/- sign from integer x
+    """
     if x < 0:
         return "- "
     elif ignore:
@@ -10,8 +15,16 @@ def get_sign(x, ignore=False):
 
 
 def is_prime(n):
+    """
+    Check if n is prime
+
+    Try to divide with 6n + 1 & 6n + 5
+    Else are covered by 2 & 3
+    """
+    # Ignore negative, 0 & 1
     if n <= 1:
         return False
+    # 2 & 3 are primes
     if n <= 3:
         return True
     if n % 2 == 0 or n % 3 == 0:
@@ -31,7 +44,10 @@ def compute_poly(x, poly):
     return total
 
 
-def check_irr(poly, primes):
+def check_irr(poly, primes, px):
+    """
+    Check irreducibility of a polynom with prime factors of `a`
+    """
     if poly[0] != functools.reduce(lambda x, y: x * y, primes):
         return False
     for p in primes:
@@ -41,6 +57,11 @@ def check_irr(poly, primes):
 
 
 def egcd(a, b):
+    """
+    Compute extended euclidean for `a` and `b`
+
+    Pre-condition: a > b
+    """
     if a % b == 0:
         return (None, None)
     mem = [0, 1, 0, None]
@@ -60,7 +81,3 @@ def egcd(a, b):
         b = a % b
         a = t
     return (mem[3], mem[1])
-
-
-if __name__ == "__main__":
-    print(egcd(11, 3))
