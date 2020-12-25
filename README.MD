@@ -11,14 +11,21 @@ In prime field, elements are integer within [0, p-1] range. Prime field have a p
 
 In extension field, elements can be polynomials with maximum degree of (m-1). Extension field have a prime `p` and prime polynomial (irreducible) that limits our polynomial and its values so it will always be within the field.
 
+## Install
+`pip install GaloisField`
+
 ## Requirements
 - Python 3
 
 ## Usage
 ```
-from galois_field import GF, FastPolynom, FFElement
+from galois_field.GF import GF, FFElement
+from galois_field.fast_polynom import FastPolynom
 
 irr_poly = FastPolynom({0: 1, 1: 1, 3: 1})
 ff = GF(2, 3, (irr_poly, [1]))
-e = FFElement(ff, FastPolynom({0: 1, 1: 1}))
+e1 = FFElement(ff, FastPolynom({0: 1, 1: 1}))
+e2 = FFElement(ff, FastPolynom({0: 1, 1: 1}))
+e_res = e1 * e2
+assert (e2 == e_res / e1)
 ```
