@@ -104,7 +104,7 @@ class GF:
         m = self.m
         return "GF({}{}){}".format(
             p,
-            "^" + str(m) if m else "",
+            "^" + str(m) if m != 1 else "",
             "[X] / " + str(self.irr[0]) if self.irr[0] else "",
         )
 
