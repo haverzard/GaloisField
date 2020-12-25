@@ -122,7 +122,7 @@ class FastPolynom:
                 if e or not s:
                     s += "{}{}".format(get_sign(e, not s), abs(e))
             else:
-                s += self._element_str(keys[0], not s)
+                s += self._element_str(keys[0], not s)[:-1]
             return s
         else:
             return "0"
