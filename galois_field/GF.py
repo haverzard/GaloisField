@@ -319,9 +319,10 @@ class FFElement:
             assert self.ff == x.ff, "x is not in the same finite field"
             if self.is_zero():
                 raise FFOperationException("//", "Division by 0 is unallowed")
-            if self.ff.m == 1:
+            if self.ff.m == 1 or x.is_integer():
                 res = FastPolynom()
-                res[0] = self.container[0] // x.container[0]
+                for x in self.container.get_keys():
+                    res.container[x] = self.container[x] // x.container[0]
             else:
                 res, _ = self._div(self.container, x.container, self.ff.p)
             return FFElement(self.ff, res)
@@ -341,9 +342,10 @@ class FFElement:
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
-            if self.ff.m == 1:
+            if self.ff.m == 1 or x.is_integer():
                 res = FastPolynom(self.ff)
-                res.container[0] = self.container[0] % x.container[0]
+                for x in self.container.get_keys():
+                    res.container[x] = self.container[x] % x.container[0]
             else:
                 d = self.container.get_max_degree()
                 pre = {}
