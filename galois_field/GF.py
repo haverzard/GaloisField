@@ -413,14 +413,14 @@ class FFElement:
         if (a % b).is_zero():
             raise Exception("a & b must be co-prime")
         mem = [FFElement(a.ff), FFElement.gen_one(a.ff)]
-        while not b.is_one():
+        while not b.is_integer():
             t = mem[1]
             mem[1] = mem[0] - t * (a // b)
             mem[0] = t
             t = b
             b = a % b
             a = t
-        return mem[1]
+        return mem[1] * b.inverse()
 
     def inverse(self):
         """
