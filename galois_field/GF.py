@@ -191,9 +191,12 @@ class FFElement:
         d1 = pol1.get_max_degree()
         d2 = pol2.get_max_degree()
         if d1 < d2:
-            return [0], pol1
-        if d1 == 0 or d2 == 0:
-            return pol1, [0]
+            return FastPolynom(), pol1
+        if (d1 == pol1.container) or (d2 == 0 and not pol2.container):
+            if not pol2.container:
+                raise FFOperationException("//", "Division by 0 is unallowed")
+            if not pol1.container or pol1.container[0] == 1 or pol2.container[0] == 1:
+                return pol1, FastPolynom()
 
         keys_pol2 = pol2.get_keys(rev=True)
         num = pol1.deepcopy() if copy else pol1
