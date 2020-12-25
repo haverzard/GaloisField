@@ -360,7 +360,7 @@ class FFElement:
                     pre[a] = FFElement(self.ff, x2)
                 res = FFElement(self.ff)
                 for i in self.container.get_keys(rev=True):
-                    temp = FFElement.gen_one(self.ff)
+                    temp = FFElement(self.ff, FastPolynom({0: self.container[i]}))
                     j = 1
                     while i:
                         if i & 1:
