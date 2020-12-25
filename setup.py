@@ -1,7 +1,14 @@
 import setuptools
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+long_description = """
+Galois Field (GF) is a field contains a finite number of elements. There are 2 types of Galois Field:
+1. Prime Field (m = 1)
+2. Extension Field (m != 1)
+
+In prime field, elements are integer within [0, p-1] range. Prime field have a prime `p` that limits our value so it will always be within the field.
+
+In extension field, elements can be polynomials with maximum degree of (m-1). Extension field have a prime `p` and prime polynomial (irreducible) that limits our polynomial and its values so it will always be within the field.
+"""
 
 setuptools.setup(
     name="GaloisField",
