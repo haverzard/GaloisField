@@ -162,7 +162,7 @@ class FFElement:
 
                 self.container.broadcast_modulo(ff.p)
 
-                if self.container.get_max_degree() > ff.m:
+                if self.container.get_max_degree() >= ff.m:
                     if ff.m != 1:
                         self._fit()
                     else:
