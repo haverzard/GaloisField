@@ -1,10 +1,25 @@
+#!/usr/bin/python3
+
 from exceptions import FPNegativeDegreeNotAllowed
 from util import get_sign
 
 
 class FastPolynom:
+    """
+    Specialized polynom for galois field
+    """
+
     def __init__(self, container=None):
+        self.cache = False
+        self.cached_keys = None
         self.container = container or {}
+
+        # Cleanup zeros
+        if container:
+            keys = list(container.keys())
+            for x in keys:
+                if not container[x]:
+                    del container[x]
 
     def deepcopy(self):
         return FastPolynom(self.container.copy())
@@ -14,21 +29,45 @@ class FastPolynom:
             self.container[i] %= p
 
     def get_max_degree(self):
+        # Check for cache
+        if self.cache:
+            return self.cached_keys[-1]
+
+        # Get max degree
         keys = list(self.container.keys())
         if keys:
             return max(keys)
         return -1
 
     def get_keys(self, rev=False):
+        # Check for cache
+        if self.cache:
+            return self.cached_keys
+
+        # Get keys
         keys = list(self.container.keys())
         if rev:
             keys = keys[::-1]
         keys.sort()
+
+        # Set cache
+        self.cached_keys = keys
+        self.cache = True
+
         return keys
 
+    def compute(self, x):
+        total = 0
+        for i in self.get_keys(rev=True):
+            total = total * x + self[i]
+        return total
+
     def __getitem__(self, i):
+        # Special case: get max degree's element
         if i == -1:
             i = self.get_max_degree()
+
+        # Get element from degree i
         if i not in self.container:
             return 0
         return self.container[i]
@@ -38,8 +77,10 @@ class FastPolynom:
             raise FPNegativeDegreeNotAllowed()
         if a == 0:
             if i in self.container:
+                self.cache = False
                 del self.container[i]
         else:
+            self.cache = self.cache and i in self.container
             self.container[i] = a
 
     def _element_str(self, idx, empty):

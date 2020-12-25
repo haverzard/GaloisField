@@ -37,13 +37,6 @@ def is_prime(n):
     return True
 
 
-def compute_poly(x, poly):
-    total = 0
-    for i in poly.get_keys(rev=True):
-        total = total * x + poly[i]
-    return total
-
-
 def check_irr(poly, primes, px):
     """
     Check irreducibility of a polynom with prime factors of `a`
@@ -51,7 +44,7 @@ def check_irr(poly, primes, px):
     if poly[0] != functools.reduce(lambda x, y: x * y, primes):
         return False
     for p in primes:
-        if not compute_poly(p, poly) or not compute_poly(-p, poly):
+        if not (poly.compute(p) % px) or not (poly.compute(-p) % px):
             return False
     return True
 
