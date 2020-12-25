@@ -435,10 +435,10 @@ class FFElement:
             if self.is_zero():
                 raise FFOperationException("^-1", "0 doesn't have any inverse")
             if self.is_one():
-                return FFElement(self.ff)
-            if self.ff.m == 1:
+                return FFElement.gen_one(self.ff)
+            if self.ff.m == 1 or self.container.get_max_degree() == 0:
                 res = FFElement(self.ff)
-                res.container[0] = egcd(self.ff.p, self.container[0])[1]
+                res.container[0] = egcd(self.ff.p, self.container[0])[1] % self.ff.p
             else:
                 irr = FFElement(self.ff, self.container)
                 irr.container = self.ff.irr[0]
