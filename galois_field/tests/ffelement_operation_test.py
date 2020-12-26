@@ -60,7 +60,7 @@ class TestFFOperation(TestCase):
 
         fe = FFElement(self.ff3, FastPolynom({0: 14, 1: 10}))
         fe_inv = fe.inverse()
-        self.assertEqual(fe * fe_inv, FFElement.gen_one(self.ff2))
+        self.assertEqual(fe * fe_inv, FFElement.gen_one(self.ff3))
 
     def test_division(self):
         fe1 = FFElement(self.ff, FastPolynom({0: 1, 1: 1, 2: 1}))
