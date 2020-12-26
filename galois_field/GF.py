@@ -375,6 +375,33 @@ class FFElement:
         except AttributeError:
             raise FFOperationException("%", "x is not FFElement object?")
 
+    def pow(self, m):
+        """
+        Polynomial power
+
+        Arguments:
+            m - power (positive integer)
+
+        Usage:
+            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1}).pow(3)
+        """
+        assert m > 0, "m must be positive"
+        pre = {}
+        a = 1
+        pre[1] = self
+        while a * 2 <= m:
+            t = a
+            a *= 2
+            pre[a] = pre[t] * pre[t]
+        res = FFElement.gen_one(self.ff)
+        j = 1
+        while m:
+            if m & 1:
+                res *= pre[j]
+            m >>= 1
+            j *= 2
+        return res
+
     def is_one(self):
         """
         Check if FFElement is one
