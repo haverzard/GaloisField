@@ -349,17 +349,15 @@ class FFElement:
             else:
                 d = self.container.get_max_degree()
                 pre = {}
-                a = 2
-                _, x1 = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
-                pre[1] = FFElement(self.ff, x1)
-                _, x2 = self._div(FastPolynom({2: 1}), x.container, self.ff.p)
-                pre[2] = FFElement(self.ff, x2)
+                a = 1
+                _, _x = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
+                pre[1] = FFElement(self.ff, _x)
                 while a * 2 <= d:
-                    _, x2 = self._div(
+                    _, _x = self._div(
                         (pre[a] * pre[a]).container, x.container, self.ff.p
                     )
                     a *= 2
-                    pre[a] = FFElement(self.ff, x2)
+                    pre[a] = FFElement(self.ff, _x)
                 res = FFElement(self.ff)
                 for i in self.container.get_keys(rev=True):
                     temp = FFElement(self.ff, FastPolynom({0: self.container[i]}))
