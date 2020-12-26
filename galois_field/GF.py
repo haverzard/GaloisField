@@ -465,7 +465,7 @@ class FFElement:
 
         """
         try:
-            x = FFElement.gen_zero(self.ff)
+            x = FFElement(self.ff)
             x.container = self.ff.irr[0]
             self.container = (self % x).container
         except AttributeError:
