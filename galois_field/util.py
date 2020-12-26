@@ -18,8 +18,8 @@ def is_prime(n):
     """
     Check if n is prime
 
-    Try to divide with 6n + 1 & 6n + 5
-    Else are covered by 2 & 3
+    Using fermat's little theorem
+    a^(n-1) = 1 + k*n
     """
     # Ignore negative, 0 & 1
     if n <= 1:
@@ -27,14 +27,7 @@ def is_prime(n):
     # 2 & 3 are primes
     if n <= 3:
         return True
-    if n % 2 == 0 or n % 3 == 0:
-        return False
-    i = 6
-    while pow(i, 2) <= n:
-        if n % (i - 1) == 0 or n % (i + 1) == 0:
-            return False
-        i += 6
-    return True
+    return pow(2, n - 1, n) == 1
 
 
 def check_irr(poly, primes, px):
