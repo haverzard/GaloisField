@@ -11,6 +11,7 @@ class TestFFOperation(TestCase):
         self.ff = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
         self.ff2 = GF(101)
         self.ff3 = GF(101, 3, (FastPolynom({0: 10, 1: 6, 3: 1}), [2, 5]))
+        self.ff4 = GF(101, 3, (FastPolynom({0: 10, 1: 6, 3: 5}), [2, 5]))
 
     def test_addition(self):
         fe_res = FFElement(self.ff, FastPolynom({1: 1}))
@@ -61,6 +62,10 @@ class TestFFOperation(TestCase):
         fe = FFElement(self.ff3, FastPolynom({0: 14, 1: 10}))
         fe_inv = fe.inverse()
         self.assertEqual(fe * fe_inv, FFElement.gen_one(self.ff3))
+
+        fe = FFElement(self.ff4, FastPolynom({0: 14, 1: 10, 2: 30}))
+        fe_inv = fe.inverse()
+        self.assertEqual(fe * fe_inv, FFElement.gen_one(self.ff4))
 
     def test_division(self):
         fe1 = FFElement(self.ff, FastPolynom({0: 1, 1: 1, 2: 1}))
