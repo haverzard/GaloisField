@@ -23,33 +23,28 @@ class GF:
     Attributes:
         p - prime number
         m - positive integer (default: 1)
-        irr - tuple consists of [0] irreducible polynom & [1] prime (used for extension field)
-            set irr[0] with FastPolynom object
-            set irr[1] as None to ignore reducibility check
+        irr - irreducible polynom as FastPolynom object
 
     Usage:
-        GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None))
+        GF(2, 3, FastPolynom({0:1, 1:1, 3:1}))
     """
 
-    def __init__(self, p, m=1, irr=(None, None), prime_check=True):
+    def __init__(self, p, m=1, irr=None, prime_check=True):
         """
         Init finite field
         1. Check if p is prime
         2. Check if m is positive integer
         3. Check if type of field
-        4. Check polynom's degree if field is extension
-           and irreducibility of the polynom if primes are set
+        4. Check polynom's degree if field is extension and irreducibility of the polynom
 
         Arguments:
             p - prime number
             m - positive integer (default: 1)
-            irr - tuple consists of [0] irreducible polynom & [1] prime (used for extension field)
-                set irr[0] with FastPolynom object
-                set irr[1] as None to ignore reducibility check
+            irr - irreducible polynom as FastPolynom object
             prime_check - enable/disable prime check for optimization purpose (default: True)
 
         Usage:
-            GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None))
+            GF(2, 3, FastPolynom({0:1, 1:1, 3:1}))
         """
         if prime_check:
             assert is_prime(p), "p must be prime"
@@ -59,23 +54,21 @@ class GF:
 
         # Extension field case
         if m != 1:
-            assert (
-                irr[0].get_max_degree() == m
-            ), "irreducible polynom is not for the finite field"
+            if irr:
+                assert (
+                    irr.get_max_degree() == m
+                ), "irreducible polynom is not for the finite field"
 
-            # Make irreducible polynom's elements are within [0...p-1]
-            irr[0].broadcast_modulo(p)
+                # Make irreducible polynom's elements are within [0...p-1]
+                irr.broadcast_modulo(p)
 
-            # Check for primes
-            if irr[1]:
-                assert len(irr[1]), "make sure it's array"
-
-                # Make sure primes are really primes
-                for x in irr[1]:
-                    assert x == 1 or is_prime(x), "not prime"
-
+                self.irr = irr
                 # Check irreduciblity
-                assert check_irr(irr[0], irr[1], p), "polynom is reducible"
+                assert check_irr(
+                    FFElement(self, FastPolynom({1: 1}))
+                ), "polynom is reducible"
+            # else:
+            #     irr =
         self.irr = irr
 
     def __eq__(self, x):
@@ -86,10 +79,10 @@ class GF:
             x - GF object
 
         Usage:
-            GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None))
-            == GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None))
+            GF(2, 3, FastPolynom({0:1, 1:1, 3:1}))
+            == GF(2, 3, FastPolynom({0:1, 1:1, 3:1}))
         """
-        return self.p == x.p and self.m == x.m and self.irr[0] == x.irr[0]
+        return self.p == x.p and self.m == x.m and self.irr == x.irr
 
     def __ne__(self, x):
         return not (self == x)
@@ -101,14 +94,14 @@ class GF:
         with F(x) is the irreducible polynom
 
         Usage:
-            str(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
+            str(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
         """
         p = self.p
         m = self.m
         return "GF({}{}){}".format(
             p,
             "^" + str(m) if m != 1 else "",
-            "[X] / " + str(self.irr[0]) if self.irr[0] else "",
+            "[X] / " + str(self.irr) if self.irr else "",
         )
 
 
@@ -133,7 +126,7 @@ class FFElement:
         - Modulo
 
     Usage:
-        FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
+        FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
     """
 
     def __init__(self, ff, container=None):
@@ -153,7 +146,7 @@ class FFElement:
                         Set to None to create empty polynom
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
         """
         self.ff = ff
         if ff.m:
@@ -191,9 +184,12 @@ class FFElement:
         d1 = pol1.get_max_degree()
         d2 = pol2.get_max_degree()
         if d1 < d2:
-            return [0], pol1
-        if d1 == 0 or d2 == 0:
-            return pol1, [0]
+            return FastPolynom(), pol1
+        if (d1 == pol1.container) or (d2 == 0 and not pol2.container):
+            if not pol2.container:
+                raise FFOperationException("//", "Division by 0 is unallowed")
+            if not pol1.container or pol1.container[0] == 1 or pol2.container[0] == 1:
+                return pol1, FastPolynom()
 
         keys_pol2 = pol2.get_keys(rev=True)
         num = pol1.deepcopy() if copy else pol1
@@ -201,8 +197,10 @@ class FFElement:
         key = pol2[d2]
         while d1 >= d2:
             x = num[d1]
-            assert x % key == 0, "bad reduce"
-            fac = x // key
+            if x % key == 0:
+                fac = x // key
+            else:
+                fac = x * egcd(self.ff.p, key)[1] % self.ff.p
             divs[d1 - d2] = fac
             if fac:
                 for j in keys_pol2:
@@ -219,8 +217,8 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
-            + FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
+            + FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
@@ -239,8 +237,8 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
-            - FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
+            - FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
@@ -261,8 +259,8 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1})
-            * FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1})
+            * FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
@@ -274,7 +272,7 @@ class FFElement:
                     res[i + j] += (self.container[i] * x.container[j]) % p
                     res[i + j] %= p
             if self.ff.m != 1:
-                _, res = self._div(res, self.ff.irr[0], p)
+                _, res = self._div(res, self.ff.irr, p)
             return FFElement(self.ff, res)
         except AttributeError:
             raise FFOperationException("*", "x is not FFElement object?")
@@ -288,8 +286,8 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1})
-            / FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1})
+            / FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
@@ -307,16 +305,17 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1})
-            // FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1})
+            // FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
             if self.is_zero():
                 raise FFOperationException("//", "Division by 0 is unallowed")
-            if self.ff.m == 1:
+            if self.ff.m == 1 or x.is_integer():
                 res = FastPolynom()
-                res[0] = self.container[0] // x.container[0]
+                for x in self.container.get_keys():
+                    res.container[x] = self.container[x] // x.container[0]
             else:
                 res, _ = self._div(self.container, x.container, self.ff.p)
             return FFElement(self.ff, res)
@@ -331,31 +330,30 @@ class FFElement:
             x - FFElement object
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1})
-            % FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {0: 1})
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1})
+            % FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {0: 1})
         """
         try:
             assert self.ff == x.ff, "x is not in the same finite field"
-            if self.ff.m == 1:
+            if self.ff.m == 1 or x.is_integer():
                 res = FastPolynom(self.ff)
-                res.container[0] = self.container[0] % x.container[0]
+                for x in self.container.get_keys():
+                    res.container[x] = self.container[x] % x.container[0]
             else:
                 d = self.container.get_max_degree()
                 pre = {}
-                a = 2
-                _, x1 = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
-                pre[1] = FFElement(self.ff, x1)
-                _, x2 = self._div(FastPolynom({2: 1}), x.container, self.ff.p)
-                pre[2] = FFElement(self.ff, x2)
+                a = 1
+                _, _x = self._div(FastPolynom({1: 1}), x.container, self.ff.p)
+                pre[1] = FFElement(self.ff, _x)
                 while a * 2 <= d:
-                    _, x2 = self._div(
+                    _, _x = self._div(
                         (pre[a] * pre[a]).container, x.container, self.ff.p
                     )
                     a *= 2
-                    pre[a] = FFElement(self.ff, x2)
+                    pre[a] = FFElement(self.ff, _x)
                 res = FFElement(self.ff)
                 for i in self.container.get_keys(rev=True):
-                    temp = FFElement.gen_one(self.ff)
+                    temp = FFElement(self.ff, FastPolynom({0: self.container[i]}))
                     j = 1
                     while i:
                         if i & 1:
@@ -370,6 +368,33 @@ class FFElement:
         except AttributeError:
             raise FFOperationException("%", "x is not FFElement object?")
 
+    def pow(self, m):
+        """
+        Polynomial power
+
+        Arguments:
+            m - power (positive integer)
+
+        Usage:
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1}).pow(3)
+        """
+        assert m > 0, "m must be positive"
+        pre = {}
+        a = 1
+        pre[1] = self
+        while a * 2 <= m:
+            t = a
+            a *= 2
+            pre[a] = pre[t] * pre[t]
+        res = FFElement.gen_one(self.ff)
+        j = 1
+        while m:
+            if m & 1:
+                res *= pre[j]
+            m >>= 1
+            j *= 2
+        return res
+
     def is_one(self):
         """
         Check if FFElement is one
@@ -380,7 +405,13 @@ class FFElement:
         """
         Check if FFElement is zero
         """
-        return self.container.get_max_degree() == -1
+        return self.container.get_max_degree() == 0 and not self.container.container
+
+    def is_integer(self):
+        """
+        Check if FFElement is integer
+        """
+        return self.container.get_max_degree() == 0 and self.container[0] != 0
 
     @staticmethod
     def gen_one(ff):
@@ -391,7 +422,7 @@ class FFElement:
             ff - GF object
 
         Usage:
-            FFElement.gen_one(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)))
+            FFElement.gen_one(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})))
         """
         return FFElement(ff, FastPolynom({0: 1}))
 
@@ -407,14 +438,14 @@ class FFElement:
         if (a % b).is_zero():
             raise Exception("a & b must be co-prime")
         mem = [FFElement(a.ff), FFElement.gen_one(a.ff)]
-        while not b.is_one():
+        while not b.is_integer():
             t = mem[1]
             mem[1] = mem[0] - t * (a // b)
             mem[0] = t
             t = b
             b = a % b
             a = t
-        return mem[1]
+        return mem[1] * b.inverse()
 
     def inverse(self):
         """
@@ -423,19 +454,19 @@ class FFElement:
         Arguments:
 
         Usage:
-            FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1}).inverse()
+            FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1}).inverse()
         """
         try:
             if self.is_zero():
                 raise FFOperationException("^-1", "0 doesn't have any inverse")
             if self.is_one():
-                return FFElement(self.ff)
-            if self.ff.m == 1:
+                return FFElement.gen_one(self.ff)
+            if self.ff.m == 1 or self.container.get_max_degree() == 0:
                 res = FFElement(self.ff)
-                res.container[0] = egcd(self.ff.p, self.container[0])[1]
+                res.container[0] = egcd(self.ff.p, self.container[0])[1] % self.ff.p
             else:
                 irr = FFElement(self.ff, self.container)
-                irr.container = self.ff.irr[0]
+                irr.container = self.ff.irr
 
                 res = FFElement.egcd(irr, self)
             return res
@@ -452,8 +483,8 @@ class FFElement:
 
         """
         try:
-            x = FFElement.gen_zero(self.ff)
-            x.container = self.ff.irr[0]
+            x = FFElement(self.ff)
+            x.container = self.ff.irr
             self.container = (self % x).container
         except AttributeError:
             raise FFOperationException("fit", "Something went wrong?")
@@ -465,6 +496,6 @@ class FFElement:
         with F(x) is the irreducible polynom and P(x) is the element
 
         Usage:
-            str(FFElement(GF(2, 3, (FastPolynom({0:1, 1:1, 3:1}), None)), {1: 1}))
+            str(FFElement(GF(2, 3, FastPolynom({0:1, 1:1, 3:1})), {1: 1}))
         """
         return "{}: {}".format(self.ff, self.container)

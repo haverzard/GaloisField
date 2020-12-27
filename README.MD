@@ -23,7 +23,7 @@ from galois_field.GF import GF, FFElement
 from galois_field.fast_polynom import FastPolynom
 
 irr_poly = FastPolynom({0: 1, 1: 1, 3: 1})
-ff = GF(2, 3, (irr_poly, [1]))
+ff = GF(2, 3, irr_poly)
 e1 = FFElement(ff, FastPolynom({0: 1, 1: 1}))
 e2 = FFElement(ff, FastPolynom({0: 1, 1: 1}))
 e_res = e1 * e2
