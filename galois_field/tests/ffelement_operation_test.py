@@ -80,6 +80,10 @@ class TestFFOperation(TestCase):
         self.assertEqual(fe1 * fe2, fe_res)
         self.assertEqual(fe_res / fe1, fe2)
 
+    def test_pow(self):
+        fe = FFElement(self.ff3, FastPolynom({0: 1, 1: 1}))
+        self.assertEqual(fe.pow(2), fe * fe)
+
 
 class TestFFException(TestCase):
     def __init__(self, *args, **kwargs):
