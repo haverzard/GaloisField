@@ -30,16 +30,14 @@ def is_prime(n):
     return pow(2, n - 1, n) == 1
 
 
-def check_irr(poly, primes, px):
+def check_irr(fe):
     """
     Check irreducibility of a polynom with prime factors of `a`
+
+    Using euler's theorem
+    a^phi = 1 + k*p
     """
-    if poly[0] != functools.reduce(lambda x, y: x * y, primes):
-        return False
-    for p in primes:
-        if not (poly.compute(p) % px) or not (poly.compute(-p) % px):
-            return False
-    return True
+    return fe.pow(fe.ff.p ** fe.ff.m - 1).is_one()
 
 
 def egcd(a, b):
