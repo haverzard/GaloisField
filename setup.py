@@ -12,7 +12,7 @@ In extension field, elements can be polynomials with maximum degree of (m-1). Ex
 
 setuptools.setup(
     name="GaloisField",
-    version="0.1.0",
+    version="0.1.1",
     author="haverzard",
     author_email="yonatanviody@gmail.com",
     description="Galois Finite Field Implementation in Python 3",
