@@ -8,10 +8,10 @@ import operator
 class TestFFOperation(TestCase):
     def __init__(self, *args, **kwargs):
         super(TestFFOperation, self).__init__(*args, **kwargs)
-        self.ff = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
+        self.ff = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
         self.ff2 = GF(101)
-        self.ff3 = GF(101, 3, (FastPolynom({0: 10, 1: 6, 3: 1}), [2, 5]))
-        self.ff4 = GF(101, 3, (FastPolynom({0: 10, 1: 6, 3: 5}), [2, 5]))
+        self.ff3 = GF(101, 3, FastPolynom({0: 2, 1: 2, 2: 6, 3: 1}))
+        self.ff4 = GF(101, 3, FastPolynom({0: 10, 1: 6, 3: 5}))
 
     def test_addition(self):
         fe_res = FFElement(self.ff, FastPolynom({1: 1}))
@@ -84,8 +84,8 @@ class TestFFOperation(TestCase):
 class TestFFException(TestCase):
     def __init__(self, *args, **kwargs):
         super(TestFFException, self).__init__(*args, **kwargs)
-        self.ff = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
-        self.ff2 = GF(2, 3, (FastPolynom({0: 1, 2: 1, 3: 1}), [1]))
+        self.ff = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
+        self.ff2 = GF(2, 3, FastPolynom({0: 1, 2: 1, 3: 1}))
         self.ff3 = GF(101)
 
     def test_not_in_the_same_field(self):

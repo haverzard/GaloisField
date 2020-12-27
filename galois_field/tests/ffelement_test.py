@@ -7,8 +7,8 @@ from galois_field.exceptions import PrimeFieldNoFitException
 class TestFFElement(TestCase):
     def __init__(self, *args, **kwargs):
         super(TestFFElement, self).__init__(*args, **kwargs)
-        self.ff = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
-        self.ff2 = GF(2, 3, (FastPolynom({0: 1, 2: 1, 3: 1}), [1]))
+        self.ff = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
+        self.ff2 = GF(2, 3, FastPolynom({0: 1, 2: 1, 3: 1}))
 
     def test_create(self):
         fe = FFElement(self.ff, FastPolynom({1: 1}))

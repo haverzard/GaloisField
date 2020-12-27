@@ -5,7 +5,7 @@ from galois_field.fast_polynom import FastPolynom
 
 class TestGF(TestCase):
     def test_extension_field(self):
-        gf = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
+        gf = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
         self.assertTrue(isinstance(gf, GF))
         self.assertEqual(gf.p, 2)
         self.assertEqual(gf.m, 3)
@@ -16,7 +16,7 @@ class TestGF(TestCase):
         self.assertTrue(isinstance(gf, GF))
         self.assertEqual(gf.p, 2)
         self.assertEqual(gf.m, 1)
-        self.assertEqual(gf.irr[0], None)
+        self.assertEqual(gf.irr, None)
         self.assertEqual(str(gf), "GF(2)")
 
     def test_equality(self):
@@ -28,12 +28,12 @@ class TestGF(TestCase):
         gf2 = GF(3)
         self.assertNotEqual(gf1, gf2)
 
-        gf1 = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
-        gf2 = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
+        gf1 = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
+        gf2 = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
         self.assertEqual(gf1, gf2)
 
-        gf1 = GF(2, 3, (FastPolynom({0: 1, 1: 1, 3: 1}), [1]))
-        gf2 = GF(2, 3, (FastPolynom({0: 1, 2: 1, 3: 1}), [1]))
+        gf1 = GF(2, 3, FastPolynom({0: 1, 1: 1, 3: 1}))
+        gf2 = GF(2, 3, FastPolynom({0: 1, 2: 1, 3: 1}))
         self.assertNotEqual(gf1, gf2)
 
 
@@ -46,4 +46,4 @@ class TestGFException(TestCase):
         self.assertRaises(AssertionError, GF, 2, 0)
 
     def test_not_irreducible(self):
-        self.assertRaises(AssertionError, GF, 2, 3, (FastPolynom({0: 1, 3: 1}), [1]))
+        self.assertRaises(AssertionError, GF, 2, 3, FastPolynom({0: 1, 3: 1}))
